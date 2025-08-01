@@ -5,11 +5,11 @@ pipeline {
         PROJECT_NAME = "cicd-pro"
         IMAGE_NAME = "krishnadale/${PROJECT_NAME}"
         ENVIRONMENT = "dev"
-        TAG = "${BUILD_NUMBER}" // You can also use: `sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()`
+        TAG = "${BUILD_NUMBER}"
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '10')) // keeps only last 10 builds
+        buildDiscarder(logRotator(numToKeepStr: '10'))
         timestamps()
     }
 
@@ -22,16 +22,20 @@ pipeline {
 
         stage('Build Maven Project') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('ClinicApp') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh '''
-                docker build -t ${IMAGE_NAME}:${TAG} .
-                docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_NAME}:latest
-                '''
+                dir('ClinicApp') {
+                    sh '''
+                    docker build -t ${IMAGE_NAME}:${TAG} .
+                    docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_NAME}:latest
+                    '''
+                }
             }
         }
 
