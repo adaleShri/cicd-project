@@ -1,28 +1,76 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_NAME = "cicd-pro"
+        IMAGE_NAME = "krishnadale/${PROJECT_NAME}"
+        ENVIRONMENT = "dev"
+        TAG = "${BUILD_NUMBER}" // You can also use: `sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()`
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10')) // keeps only last 10 builds
+        timestamps()
+    }
+
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/adaleShri/cicd-project.git'
+                git url: 'https://github.com/adaleShri/cicd-project.git', branch: 'main'
             }
         }
 
-        stage('Build') {
+        stage('Build Maven Project') {
             steps {
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Docker Build & Run') {
+        stage('Docker Build') {
             steps {
                 sh '''
-                docker rm -f clinicapp || true
-                docker build -t clinic-app:v1 .
-                docker run -d -p 8081:8080 --name clinicapp clinic-app:v1
+                docker build -t ${IMAGE_NAME}:${TAG} .
+                docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_NAME}:latest
+                '''
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${IMAGE_NAME}:${TAG}
+                    docker push ${IMAGE_NAME}:latest
+                    docker logout
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                sh '''
+                docker rm -f ${PROJECT_NAME}-${ENVIRONMENT} || true
+                docker run -d -p 8081:8080 \
+                    --name ${PROJECT_NAME}-${ENVIRONMENT} \
+                    -e ENV=${ENVIRONMENT} \
+                    ${IMAGE_NAME}:${TAG}
                 '''
             }
         }
     }
-}
 
+    post {
+        success {
+            echo "✅ Build and deployment completed for ${ENVIRONMENT} environment."
+        }
+        failure {
+            echo "❌ Build failed! Check the Jenkins console log for more info."
+        }
+    }
+}
