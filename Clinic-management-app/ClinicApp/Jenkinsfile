@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/Shivam461221/Clinic-management-app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Docker Build & Run') {
+            steps {
+                sh '''
+                docker rm -f clinicapp || true
+                docker build -t clinic-app:v1 .
+                docker run -d -p 8081:8080 --name clinicapp clinic-app:v1
+                '''
+            }
+        }
+    }
+}
+

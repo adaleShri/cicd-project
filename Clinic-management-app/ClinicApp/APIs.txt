@@ -1,0 +1,250 @@
+admin - email-admin@123
+        password- admin123
+
+Admin has all the access
+and Doctor has all the access except register a new doctor
+--------------------------------------------------------------------------------------------------------------------------
+1. Register doctor- (only a admin can register a new doctor)
+
+authorization - bearer token (generate when admin login)
+
+post- http://localhost:8000/api/doctors/register
+
+request body- {
+    "firstName":"shivam",
+    "lastName":"Lowanshi",
+    "email":"shivam@123",
+    "phoneNumber":"1231231231",
+    "password":"12345",
+    "gender":"Male"
+}
+---------------------------------------------------------------------------------------------------------------------------
+2. doctor/ admin login-
+
+post- http://localhost:8000/api/auth/login
+
+request body- {
+    "email":"shivam@123",
+    "password":"12345"
+}
+ response- {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NGViZGVhNThiYzE0ODIyYzkxY2M2MSIsInJvbGUiOiJkb
+             2N0b3IiLCJpYXQiOjE3MzMyODkxMTUsImV4cCI6MTczMzI5MjcxNX0.sP56yVSbjncScpkGSCV2emDWNZ6EikUnybp_b45wD2k",
+    "doctor": {
+        "_id": "674ebdea58bc14822c91cc61",
+        "firstName": "shivam",
+        "lastName": "Lowanshi",
+        "phoneNumber": "1231231231",
+        "email": "shivam@123",
+        "password": "$2a$10$Cx/dOSOnDlxULO4DoPquDeZKeJjs4drwIcqlGwwcZlBQg9xpryFJK",
+        "gender": "Male",
+        "role": "doctor",
+        "createdAt": "2024-12-03T08:14:34.784Z",
+        "updatedAt": "2024-12-03T08:14:34.784Z",
+        "__v": 0
+    }
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+3. Delete doctor (only doctor)
+
+delete - http://localhost:8000/api/doctors/delete
+
+req params - id
+
+Authorization (Bearer token )- generated when doctor login
+-------------------------------------------------------------------------------------------------------------------------
+-
+4. Update doctor (only doctor)
+
+put - http://localhost:8000/api/doctors/update/674ebdea58bc14822c91cc61
+
+give id directly in req params not in query params
+
+Authorization (Bearer token )- generated when doctor login
+
+request body {
+
+}
+-------------------------------------------------------------------------------------------------------------------------
+
+5. Register receptionist- (only doctor can do it)
+
+post- http://localhost:8000/api/receptionist/register
+
+Authorization (Bearer token )- generated when doctor login
+
+request body - {
+    "firstName":"xyz",
+    "lastName":"xyz",
+     "phoneNumber":"1231231233",
+    "email":"xyz@123",
+    "password":"12345",
+    "gender":"female",
+    "clinicAddress":"Bhawarkua"
+}
+-------------------------------------------------------------------------------------------------------------------------
+
+6. Receptionist login 
+
+post - http://localhost:8000/api/auth/login
+
+request body - {
+    "email":"parul@123",
+    "password":"12345"
+}
+-------------------------------------------------------------------------------------------------------------------------
+
+7. View All receptionist  (Only doctor can do it)
+
+get - http://localhost:8000/api/receptionist/all
+
+Authorization (Bearer token )- generated when doctor login
+
+-------------------------------------------------------------------------------------------------------------------------
+
+8.Delete receptionist  (Only doctor can do it)
+
+get - http://localhost:8000/api/receptionist/delete/id
+
+req params - id
+
+Authorization (Bearer token)- generated when doctor login
+
+-------------------------------------------------------------------------------------------------------------------------
+9. Update receptionist(only doctor)
+
+put - http://localhost:8000/api/receptionist/update/id
+
+reqparams - id
+
+Authorization (Bearer token )- generated when doctor login
+-------------------------------------------------------------------------------------------------------------------------
+10. Patient - book appointment (any patient can do it without login)
+
+post - http://localhost:8000/api/patients/book-appointment
+
+request body - 
+{
+    "firstName":"Prince",
+    "lastName":"Malviya",
+    "age":"16",
+    "gender":"Male",
+    "phoneNumber":"1231231234",
+    "daignosis":"not yet",
+    "appointmentDate":"2024-12-03"
+}
+-------------------------------------------------------------------------------------------------------------------------
+
+11.Add patients (Doctor and receptionist)
+
+post - http://localhost:8000/api/patients/register
+
+Authorization (Bearer token )- generated when doctor or receptionist login
+
+request body - 
+{
+    "firstName":"Prince",
+    "lastName":"Malviya",
+    "age":"16",
+    "gender":"Male",
+    "phoneNumber":"1231231234",
+    "daignosis":"not yet",
+    "appointmentDate":"2024-12-03"
+}
+-------------------------------------------------------------------------------------------------------------------------
+
+12. View patients (Doctor and receptionist)
+
+Authorization (Bearer token )- generated when doctor or receptionist login
+
+get- http://localhost:8000/api/patients/all
+
+-------------------------------------------------------------------------------------------------------------------------
+
+13. Delete a patient (Doctor and receptionist)
+
+Authorization (Bearer token )- generated when doctor or receptionist login
+
+delete- http://localhost:8000/api/patients/delete/patients id
+
+req params - id 
+
+Authorization (Bearer token )- generated when doctor or receptionist login
+
+-------------------------------------------------------------------------------------------------------------------------
+
+14. forgot password (doctor)
+
+post-http://localhost:8000/api/doctors/forgot-password
+
+request body{
+    "email":"sourabh@123"
+}
+
+in reponse you got a reset token
+
+----------------------------------------------------------------------------------------------------------------------------
+15. reset password (doctor)
+
+post - http://localhost:8000/api/doctors/reset-password/actualtoken(reset-token)
+
+request body {
+    "password":"123456"
+}
+----------------------------------------------------------------------------------------------------------------------------
+16. Update patient (doctor, receptionist)
+
+put - http://localhost:8000/api/patients/update/674ee4be5455e72a1d12da74
+
+request params - id
+
+Authorization - bearer token
+-----------------------------------------------------------------------------------------------------------------------------
+
+17. done patient appointment (doctor, receptionist)
+
+put - http://localhost:8000/api/patients/apointment-done/:id
+
+request params- id
+
+
+Authorization - bearer token
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+18. Undo patient appointment (doctor, receptionist)
+
+put - http://localhost:8000/api/patients/apointment-undo/:id
+
+request params- id
+
+Authorization - bearer token
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+19.Get All doctors (only admin)
+
+get - http://localhost:8000/api/doctors/getAll
+
+Authorization - bearer token
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+20. Get Doctor by id (only admin)
+
+get- http://localhost:8000/api/doctors/getById/(id)
+
+Authorization - bearer token
+
+------------------------------------------------------------------------------------------------------------------------------
+
+21. Get patient by id (doctor, admin, receptionist)
+
+get - http://localhost:8000/api/patients/getById/:id
+
+authorization - bearer token
+------------------------------------------------------------------------------------------------------------------------------
+
+
